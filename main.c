@@ -28,6 +28,7 @@
 
 #define TSC_FREQ 1000000
 #define SAMPLES 30
+#define REGRESS_START 0
 
 void printk(const char *format, ...) {
 	va_list ap;
@@ -49,7 +50,8 @@ int main() {
 		y[i] = ts_y[i];
 	}
 
-	regress(x, y, SAMPLES, &intercept, &slope, &variance);
+	regress(x + REGRESS_START, y + REGRESS_START, SAMPLES - REGRESS_START,
+			&intercept, &slope, &variance);
 	max_offset = 0.0;
 
 	for (i = 0; i < SAMPLES; i++) {

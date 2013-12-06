@@ -1,0 +1,10 @@
+linux-tktest
+============
+
+This is a program used to test stability and accuracy of the Linux
+kernel timekeeper with a simulated TSC clock.
+
+To build it, run make with KDIR set to a configured kernel tree or
+symlink "linux" pointing to the tree present in this directory.
+
+Miroslav Lichvar <mlichvar@redhat.com>

@@ -1,0 +1,5 @@
+/*.o
+/.*.cmd
+/tk_test
+/timekeeping.c
+/linux

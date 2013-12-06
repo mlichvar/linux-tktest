@@ -56,7 +56,9 @@ int main() {
 		offset = x[i] * slope + intercept - y[i];
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
-		printk("%5d %lld %lld %9.1f %9.1f\n", i, ts_x[i], ts_y[i],
+		printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
+				ts_x[i], ts_y[i],
+				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * TSC_FREQ / 1e6 - 1.0 : 0.0,
 				y[i] - x[i] / TSC_FREQ * 1e6, offset);
 	}
 

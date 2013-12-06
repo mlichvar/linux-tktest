@@ -66,7 +66,7 @@ int main() {
 
 	printk("n: %d, slope: %.2f (%.2f GHz), dev: %.1f ns, max: %.1f ns, freq: %.5f ppm\n",
 			SAMPLES, slope, 1.0 / slope, sqrt(variance), max_offset,
-			(1e6 / slope / TSC_FREQ - 1.0) * 1e6);
+			(slope / 1e6 * TSC_FREQ - 1.0) * 1e6);
 
 	return 0;
 }

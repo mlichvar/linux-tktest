@@ -19,6 +19,7 @@
  */
 
 #include <linux/clocksource.h>
+#include <linux/random.h>
 
 void do_timer(unsigned long ticks);
 
@@ -85,10 +86,13 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
 	advance_ticks(freq, 100, 1, 20);
 
 	for (i = 0; i < samples; i++) {
+		int rand = get_random_int();
 		getnstimeofday(&ts);
 		ts_x[i] = simtsc;
 		ts_y[i] = ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 
-		advance_ticks(freq, 100, 1, 1);
+		rand = rand&((1<<12)-1); /* 0-4k */
+
+		advance_ticks(freq, rand, 1, 1);
 	}
 }

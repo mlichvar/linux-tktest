@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "tk_test.h"
 #include "regress.h"
@@ -38,10 +39,17 @@ void printk(const char *format, ...) {
 	va_end(ap);
 }
 
+int get_random_int(void)
+{
+	return random();
+}
+
 int main() {
 	uint64_t ts_x[SAMPLES], ts_y[SAMPLES];
 	double x[SAMPLES], y[SAMPLES], slope, intercept, offset, variance, max_offset;
 	int i;
+
+	srandom(12341234);
 
 	tk_test(ts_x, ts_y, SAMPLES, TSC_FREQ);
 

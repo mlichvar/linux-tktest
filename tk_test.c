@@ -21,7 +21,7 @@
 #include <linux/clocksource.h>
 #include <linux/random.h>
 
-void do_timer(unsigned long ticks);
+void xtime_update(unsigned long ticks);
 
 cycle_t simtsc;
 
@@ -64,12 +64,12 @@ void advance_ticks(int freq, int ticks, int frac, int repeat) {
 	if (1) {
 		for (i = 0; i < repeat; i++) {
 			simtsc += ticks * 1000ULL * freq / HZ / frac;
-			do_timer(ticks);
+			xtime_update(ticks);
 		}
 	} else {
 		for (i = 0; i < repeat * ticks / frac; i++) {
 			simtsc += 1000ULL * freq / HZ;
-			do_timer(1);
+			xtime_update(1);
 		}
 	}
 }

@@ -27,7 +27,7 @@
 #include "tk_test.h"
 #include "regress.h"
 
-#define TSC_FREQ 1000000
+#define TSC_FREQ 1000000000
 #define SAMPLES 30
 #define REGRESS_START 0
 
@@ -68,13 +68,13 @@ int main() {
 			max_offset = fabs(offset);
 		printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
 				ts_x[i], ts_y[i],
-				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * TSC_FREQ / 1e6 - 1.0 : 0.0,
-				y[i] - x[i] / TSC_FREQ * 1e6, offset);
+				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * TSC_FREQ / 1e9 - 1.0 : 0.0,
+				y[i] - x[i] / TSC_FREQ * 1e9, offset);
 	}
 
 	printk("n: %d, slope: %.2f (%.2f GHz), dev: %.1f ns, max: %.1f ns, freq: %.5f ppm\n",
 			SAMPLES, slope, 1.0 / slope, sqrt(variance), max_offset,
-			(slope / 1e6 * TSC_FREQ - 1.0) * 1e6);
+			(slope / 1e9 * TSC_FREQ - 1.0) * 1e6);
 
 	return 0;
 }

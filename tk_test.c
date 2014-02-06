@@ -24,6 +24,8 @@
 void xtime_update(unsigned long ticks);
 
 cycle_t simtsc;
+int simtsc_freq;
+double simtsc_frac;
 
 cycle_t simclocksource_read(struct clocksource *cs) {
 	return simtsc;
@@ -59,16 +61,20 @@ int second_overflow(unsigned long secs) {
 	return 0;
 }
 
-void advance_ticks(int freq, int ticks, int frac, int repeat) {
+void advance_ticks(int ticks, int frac, int repeat) {
 	int i;
 	if (1) {
 		for (i = 0; i < repeat; i++) {
-			simtsc += ticks * 1000ULL * freq / HZ / frac;
+			simtsc_frac += (double)ticks * simtsc_freq / HZ / frac;
+			simtsc += (cycle_t)simtsc_frac;
+			simtsc_frac -= (cycle_t)simtsc_frac;
 			xtime_update(ticks);
 		}
 	} else {
 		for (i = 0; i < repeat * ticks / frac; i++) {
-			simtsc += 1000ULL * freq / HZ;
+			simtsc_frac += (double)simtsc_freq / HZ;
+			simtsc += (cycle_t)simtsc_frac;
+			simtsc_frac -= (cycle_t)simtsc_frac;
 			xtime_update(1);
 		}
 	}
@@ -78,12 +84,16 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
 	struct timespec ts;
 	int i;
 
-	__clocksource_updatefreq_scale(&simclocksource, 1000, freq);
+	simtsc = 0;
+	simtsc_freq = freq;
+	simtsc_frac = 0.0;
+
+	__clocksource_updatefreq_scale(&simclocksource, 1, simtsc_freq);
 	timekeeping_init();
 
-	advance_ticks(freq, 1, 1, 200);
+	advance_ticks(1, 1, 200);
 	ntp_freq -= 100000;
-	advance_ticks(freq, 100, 1, 20);
+	advance_ticks(100, 1, 20);
 
 	for (i = 0; i < samples; i++) {
 		int rand = get_random_int();
@@ -93,6 +103,6 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
 
 		rand = rand&((1<<12)-1); /* 0-4k */
 
-		advance_ticks(freq, rand, 1, 1);
+		advance_ticks(rand, 1, 1);
 	}
 }

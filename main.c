@@ -42,11 +42,11 @@ int get_random_int(void)
 }
 
 int main(int argc, char **argv) {
-	int verbose = 0, tsc_freq = 1000000000, samples = 30, start = 0, ignore = 0;
-	int i, opt;
+	int verbose = 0, tsc_freq = 1000000000, total_samples = 30, start = 0, ignore = 0, split = 0;
+	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 
-	while ((opt = getopt(argc, argv, "vf:n:s:i:")) != -1) {
+	while ((opt = getopt(argc, argv, "vf:n:s:i:t:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
 				tsc_freq = atoi(optarg);
 				break;
 			case 'n':
-				samples = atoi(optarg);
+				total_samples = atoi(optarg);
 				break;
 			case 's':
 				start = atoi(optarg);
@@ -63,46 +63,54 @@ int main(int argc, char **argv) {
 			case 'i':
 				ignore = atoi(optarg);
 				break;
+			case 't':
+				split = atoi(optarg);
+				break;
 			default:
-				printk("tktest [-v] [-f freq] [-n samples] [-s start] [-i ignore]\n");
+				printk("tktest [-v] [-f freq] [-n samples] [-s start] [-i ignore] [-t split]\n");
 				exit(1);
 		}
 	}
 
-	uint64_t ts_x[samples], ts_y[samples];
-	double x[samples], y[samples];
+	uint64_t ts_x[total_samples], ts_y[total_samples];
+	double x[total_samples], y[total_samples];
 
 	srandom(12341234);
 
-	tk_test(ts_x, ts_y, samples, tsc_freq);
+	tk_test(ts_x, ts_y, total_samples, tsc_freq);
 
-	for (i = 0; i < samples; i++) {
+	for (i = 0; i < total_samples; i++) {
 		x[i] = ts_x[i];
 		y[i] = ts_y[i];
 	}
 
-	regress(x + start + ignore, y + start + ignore, samples - start - ignore,
-			&intercept, &slope, &variance);
-	max_offset = 0.0;
-	varsum = 0.0;
+	if (split == 0)
+		split = total_samples;
 
-	for (i = ignore; i < samples; i++) {
-		offset = x[i] * slope + intercept - y[i];
-		varsum += offset * offset;
-		if (fabs(offset) > max_offset)
-			max_offset = fabs(offset);
-		if (verbose) {
-			printk("%5d %lld %lld %e %9.1f %9.1f\n", i + 1,
-				ts_x[i], ts_y[i],
-				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * tsc_freq / 1e9 - 1.0 : 0.0,
-				y[i] - x[i] / tsc_freq * 1e9, offset);
+	for (samples = split; samples <= total_samples; samples += split, ignore += split) {
+		regress(x + start + ignore, y + start + ignore, samples - start - ignore,
+				&intercept, &slope, &variance);
+		max_offset = 0.0;
+		varsum = 0.0;
+
+		for (i = ignore; i < samples; i++) {
+			offset = x[i] * slope + intercept - y[i];
+			varsum += offset * offset;
+			if (fabs(offset) > max_offset)
+				max_offset = fabs(offset);
+			if (verbose) {
+				printk("%5d %lld %lld %e %9.1f %9.1f\n", i + 1,
+					ts_x[i], ts_y[i],
+					i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * tsc_freq / 1e9 - 1.0 : 0.0,
+					y[i] - x[i] / tsc_freq * 1e9, offset);
+			}
 		}
-	}
 
-	printk("samples: %d-%d reg: %d-%d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
-			ignore + 1, samples, start + ignore + 1, samples,
-			slope, sqrt(varsum / samples), max_offset,
-			(slope / 1e9 * tsc_freq - 1.0) * 1e6);
+		printk("samples: %d-%d reg: %d-%d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
+				ignore + 1, samples, start + ignore + 1, samples,
+				slope, sqrt(varsum / samples), max_offset,
+				(slope / 1e9 * tsc_freq - 1.0) * 1e6);
+	}
 
 	return 0;
 }

@@ -23,6 +23,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "tk_test.h"
 #include "regress.h"
@@ -44,10 +45,18 @@ int get_random_int(void)
 	return random();
 }
 
-int main() {
+int main(int argc, char **argv) {
 	uint64_t ts_x[SAMPLES], ts_y[SAMPLES];
 	double x[SAMPLES], y[SAMPLES], slope, intercept, offset, variance, max_offset;
-	int i;
+	int i, opt, verbose = 0;
+
+	while ((opt = getopt(argc, argv, "v")) != -1) {
+		switch (opt) {
+			case 'v':
+				verbose++;
+				break;
+		}
+	}
 
 	srandom(12341234);
 
@@ -66,10 +75,12 @@ int main() {
 		offset = x[i] * slope + intercept - y[i];
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
-		printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
+		if (verbose) {
+			printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
 				ts_x[i], ts_y[i],
 				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * TSC_FREQ / 1e9 - 1.0 : 0.0,
 				y[i] - x[i] / TSC_FREQ * 1e9, offset);
+		}
 	}
 
 	printk("n: %d, slope: %.2f (%.2f GHz), dev: %.1f ns, max: %.1f ns, freq: %.5f ppm\n",

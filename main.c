@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
 		if (verbose) {
-			printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
+			printk("%5d %lld %lld %e %9.1f %9.1f\n", i + 1,
 				ts_x[i], ts_y[i],
 				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * tsc_freq / 1e9 - 1.0 : 0.0,
 				y[i] - x[i] / tsc_freq * 1e9, offset);

@@ -28,10 +28,6 @@
 #include "tk_test.h"
 #include "regress.h"
 
-#define TSC_FREQ 1000000000
-#define SAMPLES 30
-#define REGRESS_START 0
-
 void printk(const char *format, ...) {
 	va_list ap;
 
@@ -46,46 +42,61 @@ int get_random_int(void)
 }
 
 int main(int argc, char **argv) {
-	uint64_t ts_x[SAMPLES], ts_y[SAMPLES];
-	double x[SAMPLES], y[SAMPLES], slope, intercept, offset, variance, max_offset;
-	int i, opt, verbose = 0;
+	int verbose = 0, tsc_freq = 1000000000, samples = 30, start = 0;
+	int i, opt;
+	double slope, intercept, offset, variance, max_offset;
 
-	while ((opt = getopt(argc, argv, "v")) != -1) {
+	while ((opt = getopt(argc, argv, "vf:n:s:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
 				break;
+			case 'f':
+				tsc_freq = atoi(optarg);
+				break;
+			case 'n':
+				samples = atoi(optarg);
+				break;
+			case 's':
+				start = atoi(optarg);
+				break;
+			default:
+				printk("tktest [-v] [-f freq] [-n samples] [-s start]\n");
+				exit(1);
 		}
 	}
 
+	uint64_t ts_x[samples], ts_y[samples];
+	double x[samples], y[samples];
+
 	srandom(12341234);
 
-	tk_test(ts_x, ts_y, SAMPLES, TSC_FREQ);
+	tk_test(ts_x, ts_y, samples, tsc_freq);
 
-	for (i = 0; i < SAMPLES; i++) {
+	for (i = 0; i < samples; i++) {
 		x[i] = ts_x[i];
 		y[i] = ts_y[i];
 	}
 
-	regress(x + REGRESS_START, y + REGRESS_START, SAMPLES - REGRESS_START,
+	regress(x + start, y + start, samples - start,
 			&intercept, &slope, &variance);
 	max_offset = 0.0;
 
-	for (i = 0; i < SAMPLES; i++) {
+	for (i = 0; i < samples; i++) {
 		offset = x[i] * slope + intercept - y[i];
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
 		if (verbose) {
 			printk("%5d %lld %lld %e %9.1f %9.1f\n", i,
 				ts_x[i], ts_y[i],
-				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * TSC_FREQ / 1e9 - 1.0 : 0.0,
-				y[i] - x[i] / TSC_FREQ * 1e9, offset);
+				i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * tsc_freq / 1e9 - 1.0 : 0.0,
+				y[i] - x[i] / tsc_freq * 1e9, offset);
 		}
 	}
 
 	printk("samples: %d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
-			SAMPLES, slope, sqrt(variance), max_offset,
-			(slope / 1e9 * TSC_FREQ - 1.0) * 1e6);
+			samples, slope, sqrt(variance), max_offset,
+			(slope / 1e9 * tsc_freq - 1.0) * 1e6);
 
 	return 0;
 }

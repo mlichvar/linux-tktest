@@ -83,8 +83,8 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printk("n: %d, slope: %.2f (%.2f GHz), dev: %.1f ns, max: %.1f ns, freq: %.5f ppm\n",
-			SAMPLES, slope, 1.0 / slope, sqrt(variance), max_offset,
+	printk("samples: %d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
+			SAMPLES, slope, sqrt(variance), max_offset,
 			(slope / 1e9 * TSC_FREQ - 1.0) * 1e6);
 
 	return 0;

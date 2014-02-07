@@ -44,7 +44,7 @@ int get_random_int(void)
 int main(int argc, char **argv) {
 	int verbose = 0, tsc_freq = 1000000000, samples = 30, start = 0, ignore = 0;
 	int i, opt;
-	double slope, intercept, offset, variance, max_offset;
+	double slope, intercept, offset, variance, varsum, max_offset;
 
 	while ((opt = getopt(argc, argv, "vf:n:s:i:")) != -1) {
 		switch (opt) {
@@ -84,9 +84,11 @@ int main(int argc, char **argv) {
 	regress(x + start + ignore, y + start + ignore, samples - start - ignore,
 			&intercept, &slope, &variance);
 	max_offset = 0.0;
+	varsum = 0.0;
 
 	for (i = ignore; i < samples; i++) {
 		offset = x[i] * slope + intercept - y[i];
+		varsum += offset * offset;
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
 		if (verbose) {
@@ -99,7 +101,7 @@ int main(int argc, char **argv) {
 
 	printk("samples: %d-%d reg: %d-%d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
 			ignore + 1, samples, start + ignore + 1, samples,
-			slope, sqrt(variance), max_offset,
+			slope, sqrt(varsum / samples), max_offset,
 			(slope / 1e9 * tsc_freq - 1.0) * 1e6);
 
 	return 0;

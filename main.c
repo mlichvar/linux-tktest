@@ -42,11 +42,11 @@ int get_random_int(void)
 }
 
 int main(int argc, char **argv) {
-	int verbose = 0, tsc_freq = 1000000000, samples = 30, start = 0;
+	int verbose = 0, tsc_freq = 1000000000, samples = 30, start = 0, ignore = 0;
 	int i, opt;
 	double slope, intercept, offset, variance, max_offset;
 
-	while ((opt = getopt(argc, argv, "vf:n:s:")) != -1) {
+	while ((opt = getopt(argc, argv, "vf:n:s:i:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
@@ -60,8 +60,11 @@ int main(int argc, char **argv) {
 			case 's':
 				start = atoi(optarg);
 				break;
+			case 'i':
+				ignore = atoi(optarg);
+				break;
 			default:
-				printk("tktest [-v] [-f freq] [-n samples] [-s start]\n");
+				printk("tktest [-v] [-f freq] [-n samples] [-s start] [-i ignore]\n");
 				exit(1);
 		}
 	}
@@ -78,11 +81,11 @@ int main(int argc, char **argv) {
 		y[i] = ts_y[i];
 	}
 
-	regress(x + start, y + start, samples - start,
+	regress(x + start + ignore, y + start + ignore, samples - start - ignore,
 			&intercept, &slope, &variance);
 	max_offset = 0.0;
 
-	for (i = 0; i < samples; i++) {
+	for (i = ignore; i < samples; i++) {
 		offset = x[i] * slope + intercept - y[i];
 		if (fabs(offset) > max_offset)
 			max_offset = fabs(offset);
@@ -94,8 +97,9 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	printk("samples: %d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
-			samples, slope, sqrt(variance), max_offset,
+	printk("samples: %d-%d reg: %d-%d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
+			ignore + 1, samples, start + ignore + 1, samples,
+			slope, sqrt(variance), max_offset,
 			(slope / 1e9 * tsc_freq - 1.0) * 1e6);
 
 	return 0;

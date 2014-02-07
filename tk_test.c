@@ -91,7 +91,7 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
 	__clocksource_updatefreq_scale(&simclocksource, 1, simtsc_freq);
 	timekeeping_init();
 
-	advance_ticks(1, 1, 200);
+	advance_ticks(3, 4, 1);
 	ntp_freq -= 100000;
 	advance_ticks(100, 1, 20);
 

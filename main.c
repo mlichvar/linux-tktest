@@ -44,21 +44,34 @@ int get_random_int(void)
 int main(int argc, char **argv) {
 	struct tk_test_params test_params = {
 		.clock_freq = 1000000000,
+		.update_interval = 4095,
+		.random_update = 1,
+		.nohz = 1,
+		.freq_offset = -100000,
 	};
 	int verbose = 0, total_samples = 50, start = 0, ignore = 0, split = 0;
 	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 
-	while ((opt = getopt(argc, argv, "vf:n:s:i:t:")) != -1) {
+	while ((opt = getopt(argc, argv, "vHRf:n:o:s:i:t:u:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
+				break;
+			case 'H':
+				test_params.nohz = 0;
+				break;
+			case 'R':
+				test_params.random_update = 0;
 				break;
 			case 'f':
 				test_params.clock_freq = atol(optarg);
 				break;
 			case 'n':
 				total_samples = atoi(optarg);
+				break;
+			case 'o':
+				test_params.freq_offset = atoi(optarg);
 				break;
 			case 's':
 				start = atoi(optarg);
@@ -68,6 +81,9 @@ int main(int argc, char **argv) {
 				break;
 			case 't':
 				split = atoi(optarg);
+				break;
+			case 'u':
+				test_params.update_interval = atoi(optarg);
 				break;
 			default:
 				printk("tktest [-v] [-f freq] [-n samples] [-s start] [-i ignore] [-t split]\n");

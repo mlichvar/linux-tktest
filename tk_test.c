@@ -64,7 +64,7 @@ int second_overflow(unsigned long secs) {
 
 void advance_ticks(int ticks, int frac, int repeat) {
 	int i;
-	if (1) {
+	if (test_params.nohz) {
 		for (i = 0; i < repeat; i++) {
 			simtsc_frac += (double)ticks * test_params.clock_freq / HZ / frac;
 			simtsc += (cycle_t)simtsc_frac;
@@ -83,7 +83,7 @@ void advance_ticks(int ticks, int frac, int repeat) {
 
 void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params *params) {
 	struct timespec ts;
-	int i;
+	int i, ticks;
 
 	test_params = *params;
 	simtsc = 0;
@@ -93,13 +93,14 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params 
 	timekeeping_init();
 
 	advance_ticks(3, 4, 1);
-	ntp_freq -= 100000;
+	ntp_freq += test_params.freq_offset;
 
 	for (i = 0; i < samples; i++) {
-		int rand = get_random_int();
-
-		rand = rand&((1<<12)-1); /* 0-4k */
-		advance_ticks(rand, 1, 1);
+		if (test_params.random_update)
+			ticks = get_random_int() % (test_params.update_interval + 1);
+		else
+			ticks = test_params.update_interval;
+		advance_ticks(ticks, 1, 1);
 
 		getnstimeofday(&ts);
 		ts_x[i] = simtsc;

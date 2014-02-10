@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 
-	while ((opt = getopt(argc, argv, "vHRf:n:o:s:i:t:u:")) != -1) {
+	while ((opt = getopt(argc, argv, "vhHRf:n:o:s:i:t:u:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
@@ -85,9 +85,22 @@ int main(int argc, char **argv) {
 			case 'u':
 				test_params.update_interval = atoi(optarg);
 				break;
+			case 'h':
 			default:
-				printk("tktest [-v] [-f freq] [-n samples] [-s start] [-i ignore] [-t split]\n");
-				exit(1);
+				printk( "Usage: tktest [options]\n\n"
+					"options:\n"
+					"	-f freq		clock frequency (Hz)\n"
+					"	-o freq		initial frequency offset (ppb)\n"
+					"	-n samples	collected samples\n"
+					"	-s sample	first regressed sample\n"
+					"	-i samples	ignore samples\n"
+					"	-t samples	split samples for stats\n"
+					"	-u samples	clock update interval\n"
+					"	-N		disable nohz\n"
+					"	-R		disable random update interval\n"
+					"	-v		print samples\n"
+					"	-h		print help\n");
+				exit(opt != 'h');
 		}
 	}
 

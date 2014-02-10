@@ -42,7 +42,10 @@ int get_random_int(void)
 }
 
 int main(int argc, char **argv) {
-	int verbose = 0, tsc_freq = 1000000000, total_samples = 50, start = 0, ignore = 0, split = 0;
+	struct tk_test_params test_params = {
+		.clock_freq = 1000000000,
+	};
+	int verbose = 0, total_samples = 50, start = 0, ignore = 0, split = 0;
 	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 
@@ -52,7 +55,7 @@ int main(int argc, char **argv) {
 				verbose++;
 				break;
 			case 'f':
-				tsc_freq = atoi(optarg);
+				test_params.clock_freq = atol(optarg);
 				break;
 			case 'n':
 				total_samples = atoi(optarg);
@@ -77,7 +80,7 @@ int main(int argc, char **argv) {
 
 	srandom(12341234);
 
-	tk_test(ts_x, ts_y, total_samples, tsc_freq);
+	tk_test(ts_x, ts_y, total_samples, &test_params);
 
 	for (i = 0; i < total_samples; i++) {
 		x[i] = ts_x[i];
@@ -101,15 +104,16 @@ int main(int argc, char **argv) {
 			if (verbose) {
 				printk("%5d %lld %lld %e %9.1f %9.1f\n", i + 1,
 					ts_x[i], ts_y[i],
-					i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) * tsc_freq / 1e9 - 1.0 : 0.0,
-					y[i] - x[i] / tsc_freq * 1e9, offset);
+					i > 0 ? (y[i] - y[i - 1]) / (x[i] - x[i - 1]) *
+						test_params.clock_freq / 1e9 - 1.0 : 0.0,
+					y[i] - x[i] / test_params.clock_freq * 1e9, offset);
 			}
 		}
 
 		printk("samples: %d-%d reg: %d-%d slope: %.2f dev: %.1f max: %.1f freq: %.5f\n",
 				ignore + 1, samples, start + ignore + 1, samples,
 				slope, sqrt(varsum / samples), max_offset,
-				(slope / 1e9 * tsc_freq - 1.0) * 1e6);
+				(slope / 1e9 * test_params.clock_freq - 1.0) * 1e6);
 	}
 
 	return 0;

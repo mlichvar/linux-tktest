@@ -20,11 +20,12 @@
 
 #include <linux/clocksource.h>
 #include <linux/random.h>
+#include "tk_test.h"
 
 void xtime_update(unsigned long ticks);
 
+struct tk_test_params test_params;
 cycle_t simtsc;
-int simtsc_freq;
 double simtsc_frac;
 
 cycle_t simclocksource_read(struct clocksource *cs) {
@@ -65,14 +66,14 @@ void advance_ticks(int ticks, int frac, int repeat) {
 	int i;
 	if (1) {
 		for (i = 0; i < repeat; i++) {
-			simtsc_frac += (double)ticks * simtsc_freq / HZ / frac;
+			simtsc_frac += (double)ticks * test_params.clock_freq / HZ / frac;
 			simtsc += (cycle_t)simtsc_frac;
 			simtsc_frac -= (cycle_t)simtsc_frac;
 			xtime_update(ticks);
 		}
 	} else {
 		for (i = 0; i < repeat * ticks / frac; i++) {
-			simtsc_frac += (double)simtsc_freq / HZ;
+			simtsc_frac += (double)test_params.clock_freq / HZ;
 			simtsc += (cycle_t)simtsc_frac;
 			simtsc_frac -= (cycle_t)simtsc_frac;
 			xtime_update(1);
@@ -80,15 +81,15 @@ void advance_ticks(int ticks, int frac, int repeat) {
 	}
 }
 
-void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
+void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params *params) {
 	struct timespec ts;
 	int i;
 
+	test_params = *params;
 	simtsc = 0;
-	simtsc_freq = freq;
 	simtsc_frac = 0.0;
 
-	__clocksource_updatefreq_scale(&simclocksource, 1, simtsc_freq);
+	__clocksource_updatefreq_scale(&simclocksource, 1, test_params.clock_freq);
 	timekeeping_init();
 
 	advance_ticks(3, 4, 1);

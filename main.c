@@ -42,7 +42,7 @@ int get_random_int(void)
 }
 
 int main(int argc, char **argv) {
-	int verbose = 0, tsc_freq = 1000000000, total_samples = 30, start = 0, ignore = 0, split = 0;
+	int verbose = 0, tsc_freq = 1000000000, total_samples = 50, start = 0, ignore = 0, split = 0;
 	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 

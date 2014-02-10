@@ -93,16 +93,15 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, int freq) {
 
 	advance_ticks(3, 4, 1);
 	ntp_freq -= 100000;
-	advance_ticks(100, 1, 20);
 
 	for (i = 0; i < samples; i++) {
 		int rand = get_random_int();
+
+		rand = rand&((1<<12)-1); /* 0-4k */
+		advance_ticks(rand, 1, 1);
+
 		getnstimeofday(&ts);
 		ts_x[i] = simtsc;
 		ts_y[i] = ts.tv_sec * 1000000000ULL + ts.tv_nsec;
-
-		rand = rand&((1<<12)-1); /* 0-4k */
-
-		advance_ticks(rand, 1, 1);
 	}
 }

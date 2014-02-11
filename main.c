@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 					"	-i samples	ignore samples\n"
 					"	-t samples	split samples for stats\n"
 					"	-u samples	clock update interval\n"
-					"	-N		disable nohz\n"
+					"	-H		disable nohz\n"
 					"	-R		disable random update interval\n"
 					"	-v		print samples\n"
 					"	-h		print help\n");

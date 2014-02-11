@@ -48,12 +48,14 @@ int main(int argc, char **argv) {
 		.random_update = 1,
 		.nohz = 1,
 		.freq_offset = -100000,
+		.freq_step = 0,
+		.freq_step_interval = 0,
 	};
 	int verbose = 0, total_samples = 50, start = 0, ignore = 0, split = 0;
 	int i, opt, samples;
 	double slope, intercept, offset, variance, varsum, max_offset;
 
-	while ((opt = getopt(argc, argv, "vhHRf:n:o:s:i:t:u:")) != -1) {
+	while ((opt = getopt(argc, argv, "vhHRf:n:o:p:s:i:t:u:")) != -1) {
 		switch (opt) {
 			case 'v':
 				verbose++;
@@ -73,6 +75,9 @@ int main(int argc, char **argv) {
 			case 'o':
 				test_params.freq_offset = atoi(optarg);
 				break;
+			case 'p':
+				test_params.freq_step = atoi(optarg);
+				break;
 			case 's':
 				start = atoi(optarg);
 				break;
@@ -81,6 +86,7 @@ int main(int argc, char **argv) {
 				break;
 			case 't':
 				split = atoi(optarg);
+				test_params.freq_step_interval = split;
 				break;
 			case 'u':
 				test_params.update_interval = atoi(optarg);
@@ -91,6 +97,7 @@ int main(int argc, char **argv) {
 					"options:\n"
 					"	-f freq		clock frequency (Hz)\n"
 					"	-o freq		initial frequency offset (ppb)\n"
+					"	-p freq		frequency step (ppb)\n"
 					"	-n samples	collected samples\n"
 					"	-s sample	first regressed sample\n"
 					"	-i samples	ignore samples\n"

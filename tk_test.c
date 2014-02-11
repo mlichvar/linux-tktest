@@ -105,5 +105,9 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params 
 		getnstimeofday(&ts);
 		ts_x[i] = simtsc;
 		ts_y[i] = ts.tv_sec * 1000000000ULL + ts.tv_nsec;
+
+		if (test_params.freq_step_interval &&
+		    (i + 1) % test_params.freq_step_interval == 0)
+			ntp_freq += test_params.freq_step;
 	}
 }

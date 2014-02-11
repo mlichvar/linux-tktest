@@ -7,6 +7,8 @@ struct tk_test_params {
 	int random_update;
 	int nohz;
 	int freq_offset;
+	int freq_step;
+	int freq_step_interval;
 };
 
 void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params *params);

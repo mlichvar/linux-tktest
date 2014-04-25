@@ -26,7 +26,8 @@ void xtime_update(unsigned long ticks);
 
 struct tk_test_params test_params;
 cycle_t simtsc;
-double simtsc_frac;
+#define FRAC_BITS 16
+u64 simtsc_frac;
 
 cycle_t simclocksource_read(struct clocksource *cs) {
 	return simtsc;
@@ -66,16 +67,16 @@ void advance_ticks(int ticks, int frac, int repeat) {
 	int i;
 	if (test_params.nohz) {
 		for (i = 0; i < repeat; i++) {
-			simtsc_frac += (double)ticks * test_params.clock_freq / HZ / frac;
-			simtsc += (cycle_t)simtsc_frac;
-			simtsc_frac -= (cycle_t)simtsc_frac;
+			simtsc_frac += (ticks * test_params.clock_freq << FRAC_BITS) / (HZ * frac);
+			simtsc += simtsc_frac >> FRAC_BITS;
+			simtsc_frac -= simtsc_frac >> FRAC_BITS << FRAC_BITS;
 			xtime_update(ticks);
 		}
 	} else {
 		for (i = 0; i < repeat * ticks / frac; i++) {
-			simtsc_frac += (double)test_params.clock_freq / HZ;
-			simtsc += (cycle_t)simtsc_frac;
-			simtsc_frac -= (cycle_t)simtsc_frac;
+			simtsc_frac += (ticks * test_params.clock_freq << FRAC_BITS) / HZ;
+			simtsc += simtsc_frac >> FRAC_BITS;
+			simtsc_frac -= simtsc_frac >> FRAC_BITS << FRAC_BITS;
 			xtime_update(1);
 		}
 	}

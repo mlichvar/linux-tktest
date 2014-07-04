@@ -36,6 +36,14 @@ void printk(const char *format, ...) {
 	va_end(ap);
 }
 
+void printk_deferred(const char *format, ...) {
+	va_list ap;
+
+	va_start(ap, format);
+	vfprintf(stdout, format, ap);
+	va_end(ap);
+}
+
 int get_random_int(void)
 {
 	return random();

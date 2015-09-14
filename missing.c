@@ -39,12 +39,15 @@ void hrtimers_resume() { }
 void module_put() { }
 void ntp_clear() { }
 void ntp_init() { }
+ktime_t ntp_get_next_leap(void) { ktime_t t = { KTIME_MAX }; return t; }
 void raw_notifier_call_chain() { }
 int raw_notifier_chain_register() { return 0; }
 int raw_notifier_chain_unregister() { return 0; }
 void register_syscore_ops() { }
 void stop_machine() { }
 void tick_clock_notify() { }
+void tick_suspend() { }
+void tick_resume() { }
 void tk_debug_account_sleep_time() { }
 void touch_softlockup_watchdog() { }
 void try_module_get() { }
@@ -149,7 +152,7 @@ clocks_calc_mult_shift(u32 *mult, u32 *shift, u32 from, u32 to, u32 maxsec)
 	*shift = sft;
 }
 
-void __clocksource_updatefreq_scale(struct clocksource *cs, u32 scale, u32 freq)
+void __clocksource_update_freq_scale(struct clocksource *cs, u32 scale, u32 freq)
 {
 	u64 sec;
 	/*

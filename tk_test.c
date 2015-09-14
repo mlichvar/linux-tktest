@@ -90,7 +90,7 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params 
 	simtsc = 0;
 	simtsc_frac = 0.0;
 
-	__clocksource_updatefreq_scale(&simclocksource, 1, test_params.clock_freq);
+	__clocksource_update_freq_scale(&simclocksource, 1, test_params.clock_freq);
 	timekeeping_init();
 
 	advance_ticks(3, 4, 1);

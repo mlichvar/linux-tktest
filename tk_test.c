@@ -25,11 +25,11 @@
 void xtime_update(unsigned long ticks);
 
 struct tk_test_params test_params;
-cycle_t simtsc;
+u64 simtsc;
 #define FRAC_BITS 16
 u64 simtsc_frac;
 
-cycle_t simclocksource_read(struct clocksource *cs) {
+u64 simclocksource_read(struct clocksource *cs) {
 	return simtsc;
 }
 

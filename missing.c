@@ -21,7 +21,7 @@
 
 #include <linux/clocksource.h>
 
-u64 __jiffy_data jiffies_64;
+u64 jiffies_64;
 long jiffies_lock;
 
 void calc_global_load() { }
@@ -40,9 +40,9 @@ void module_put() { }
 void ntp_clear() { }
 void ntp_init() { }
 ktime_t ntp_get_next_leap(void) { ktime_t t = { KTIME_MAX }; return t; }
-void raw_notifier_call_chain() { }
-int raw_notifier_chain_register() { return 0; }
-int raw_notifier_chain_unregister() { return 0; }
+int raw_notifier_call_chain(struct raw_notifier_head *nh, unsigned long val, void *v) { return 0; }
+int raw_notifier_chain_register(struct raw_notifier_head *nh, struct notifier_block *n) { return 0; }
+int raw_notifier_chain_unregister(struct raw_notifier_head *nh, struct notifier_block *n) { return 0; }
 void register_syscore_ops() { }
 void stop_machine() { }
 void tick_clock_notify() { }

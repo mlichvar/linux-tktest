@@ -44,7 +44,7 @@ void printk_deferred(const char *format, ...) {
 	va_end(ap);
 }
 
-int get_random_int(void)
+unsigned int get_random_u32(void)
 {
 	return random();
 }

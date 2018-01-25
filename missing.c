@@ -63,7 +63,7 @@ struct timespec ns_to_timespec(const int64_t nsec) {
 
 void set_normalized_timespec(struct timespec *ts, time_t sec, s64 nsec) {
 	ts->tv_sec = sec + nsec / 1000000000;
-	ts->tv_nsec = nsec / 1000000000;
+	ts->tv_nsec = nsec % 1000000000;
 }
 
 static u32 clocksource_max_adjustment(struct clocksource *cs)

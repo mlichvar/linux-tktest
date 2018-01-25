@@ -23,7 +23,9 @@
 
 u64 jiffies_64;
 long jiffies_lock;
+struct timezone sys_tz;
 
+bool capable(int cap) { return true; }
 void calc_global_load() { }
 unsigned long _raw_spin_lock_irqsave(raw_spinlock_t *lock) { return 0; }
 void __lockfunc _raw_spin_lock(raw_spinlock_t *lock) { }
@@ -61,7 +63,16 @@ struct timespec ns_to_timespec(const int64_t nsec) {
 	return (struct timespec) {nsec / 1000000000, nsec % 1000000000};
 }
 
+#ifdef set_normalized_timespec
+#undef set_normalized_timespec
+#endif
+
 void set_normalized_timespec(struct timespec *ts, time_t sec, s64 nsec) {
+	ts->tv_sec = sec + nsec / 1000000000;
+	ts->tv_nsec = nsec % 1000000000;
+}
+
+void set_normalized_timespec64(struct timespec64 *ts, time64_t sec, s64 nsec) {
 	ts->tv_sec = sec + nsec / 1000000000;
 	ts->tv_nsec = nsec % 1000000000;
 }

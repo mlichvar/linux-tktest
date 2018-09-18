@@ -24,6 +24,7 @@
 u64 jiffies_64;
 long jiffies_lock;
 struct timezone sys_tz;
+int cpu_number;
 
 bool capable(int cap) { return true; }
 void calc_global_load() { }
@@ -37,6 +38,8 @@ void clockevents_resume() { }
 void clockevents_suspend() { }
 void clocksource_resume() { }
 void clocksource_suspend() { }
+u64 clocksource_stop_suspend_timing(struct clocksource *cs, u64 now) { return 0; }
+void clocksource_start_suspend_timing(struct clocksource *cs, u64 start_cycles) { }
 void hrtimers_resume() { }
 void module_put() { }
 void ntp_clear() { }
@@ -58,9 +61,14 @@ void warn_slowpath_null(const char *file, const int line) { }
 int __do_adjtimex() { return 0; }
 int ntp_validate_timex() { return 0; }
 void ntp_notify_cmos_timer() { }
+u64 sched_clock_cpu(int cpu)  { return 0; }
 
 struct timespec ns_to_timespec(const int64_t nsec) {
 	return (struct timespec) {nsec / 1000000000, nsec % 1000000000};
+}
+
+struct timespec64 ns_to_timespec64(const int64_t nsec) {
+	return (struct timespec64) {nsec / 1000000000, nsec % 1000000000};
 }
 
 #ifdef set_normalized_timespec

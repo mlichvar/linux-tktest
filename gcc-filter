@@ -1,0 +1,16 @@
+#!/bin/bash
+
+args=()
+
+for i; do
+	case "$i" in
+		-fno-strict-aliasing)
+			args+=("$i");;
+		-f*|-m*)
+			;;
+		*)
+			args+=("$i");;
+	esac
+done
+
+exec gcc "${args[@]}"

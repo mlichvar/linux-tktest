@@ -83,7 +83,7 @@ void advance_ticks(int ticks, int frac, int repeat) {
 }
 
 void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params *params) {
-	struct timespec ts;
+	struct timespec64 ts;
 	int i, ticks;
 
 	test_params = *params;
@@ -98,12 +98,12 @@ void tk_test(uint64_t *ts_x, uint64_t *ts_y, int samples, struct tk_test_params 
 
 	for (i = 0; i < samples; i++) {
 		if (test_params.random_update)
-			ticks = get_random_int() % (test_params.update_interval + 1);
+			ticks = get_random_long() % (test_params.update_interval + 1);
 		else
 			ticks = test_params.update_interval;
 		advance_ticks(ticks, 1, 1);
 
-		getnstimeofday(&ts);
+		ktime_get_real_ts64(&ts);
 		ts_x[i] = simtsc;
 		ts_y[i] = ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 

@@ -63,22 +63,9 @@ int ntp_validate_timex() { return 0; }
 void ntp_notify_cmos_timer() { }
 u64 sched_clock_cpu(int cpu)  { return 0; }
 
-#ifndef ns_to_timespec
-struct timespec ns_to_timespec(const int64_t nsec) {
-	return (struct timespec) {nsec / 1000000000, nsec % 1000000000};
-}
-#endif
-
 #ifndef ns_to_timespec64
 struct timespec64 ns_to_timespec64(const int64_t nsec) {
 	return (struct timespec64) {nsec / 1000000000, nsec % 1000000000};
-}
-#endif
-
-#ifndef ns_to_timespec
-void set_normalized_timespec(struct timespec *ts, time_t sec, s64 nsec) {
-	ts->tv_sec = sec + nsec / 1000000000;
-	ts->tv_nsec = nsec % 1000000000;
 }
 #endif
 

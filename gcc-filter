@@ -4,6 +4,8 @@ args=()
 
 for i; do
 	case "$i" in
+		-Wmissing-prototypes|-Wmissing-declarations|-Wstrict-prototypes|-Werror*)
+			;;
 		-fno-strict-aliasing)
 			args+=("$i");;
 		-f*|-m*)
